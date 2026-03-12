@@ -2,17 +2,6 @@
 #include "sqlite3.h"
 using namespace std;
 
-   class DepartmentModule{
-   public:
-       static string name;
-       static int regid;
-   std::cout<<"Enter your name:\n"
-   std::cin>>a;
-   std:cout<<"Enter your registration id:\n"
-   std::cin>>b;
-   virtual void execute()=0;
-   };
-
    class DATACENTER{
     sqlite3* DB;
     char *errMSG=nullptr;
@@ -21,8 +10,8 @@ using namespace std;
     } else {
         std::cout << "Database opened successfully\n";
     }
-    class DataStorage(sqlite3* DB){
-
+    class DataStorage{
+    sqlite3* DB
     void registerUsers(){
     const char* Users =
         "CREATE TABLE IF NOT EXISTS users ("
@@ -63,7 +52,10 @@ using namespace std;
     " task_num INT PRIMARY KEY ,"
     "zoneNUM INT ,"
     " task_dscrptn VARCHAR(180) ,"
+    "CONSTARINT fk_registertasks"
     "FOREIGN KEY (zoneNUM) REFERENCES Zones(zone_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"
     ");";
      if(sqlite3_exec(DB,Tasks,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at creating tasks:"<< errMSG<<"\n";
@@ -79,7 +71,11 @@ using namespace std;
     " regist_num INT PRIMARY KEY,"
     "task_num INT NOT NULL,"
     "FOREIGN KEY (regist_num) REFERENCES Users(registration_id),"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"";";
      if(sqlite3_exec(DB,Assignd,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at assiging tasks:"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
@@ -96,7 +92,9 @@ using namespace std;
     "time  TIME,"
     "nodl INT ,"
     "lw DATE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"";";
     if(sqlite3_exec(DB,Scheduler,0,nullptr,&errMSG)!=SQLITE_OK){
          std::cout<<"error occurred at scheduling tasks:"<< errMSG<<"\n";
         sqlite3_free(errMSG);
@@ -122,6 +120,18 @@ using namespace std;
         std::cout<<"table creation of inventory  succesful\n";}
     };
 
+    void Tracker(){
+    const char* Traacker=
+    "CREATE TABLE IF NOT EXISTS Inventory("
+    "tool_num INT PRIMARY KEY ,"
+    "registration_number INT NOT NULL"";";
+         if(sqlite3_exec(DB,Inventory,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at creating inventory tracker table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+        else{
+          std::cout<<"table creation of inventory tracker  succesful\n";}
+    };
+
     void costTracker(){
     const char* Cost_TRACKER=
     "CREATE TABLE IF NOT EXISTS Cost_TRACKER("
@@ -145,9 +155,15 @@ using namespace std;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"";";
       if(sqlite3_exec(DB,Water_task,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at water task table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
@@ -164,9 +180,15 @@ using namespace std;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"";";
      if(sqlite3_exec(DB,Grasstrim_task,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at grasstrim task table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
@@ -183,9 +205,15 @@ using namespace std;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"";";
     if(sqlite3_exec(DB,Deweed_task,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at deweed task table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
@@ -202,9 +230,15 @@ using namespace std;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE,"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
+    "ON DELETE CASCADE"
+    "ON UPDATE CASCADE"";";
     if(sqlite3_exec(DB,Treeshape_task,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at treeshape task table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
@@ -213,22 +247,30 @@ using namespace std;
      };
     };
 
-    class registration{
+    class DepartmentModule{
+   public:
+       static string name;
+       static int regid;
+   std::cout<<"Enter your name:\n"
+   std::cin>>a;
+   std:cout<<"Enter your registration id:\n"
+   std::cin>>b;
+   virtual void execute();
+   };
+
+    class registration:public DepartmentModule{
     public :
-        static string name,course;
-        static int sem_number,registration_id;
+        static string course;
+        static int sem_number;
         static int zone_num,nop_zone,density_zone,not_zone;
         static string zone_name;
-        void user_process(){
-        std::cout<<"Enter your name:\n";
-        std::cin>>name;
+        void registerUser(){
         std::cout<<"Enter your course:\n";
         std::cin>>course;
         std::cout<<"Enter the semester number:\n";
         std::cin>>sem_number;
-        std::cout<<"Enter the registration_id:\n"
-        std::cin>>registration_id;
-
+    Datastorage ds;
+    ds.registerUsers();
     sqlite3_stmt* stmt;
     const char* sql = "INSERT INTO users (name,course,sem_number,registration_id) VALUES (?, ?,?,?);";
     sqlite3_prepare_v2(
@@ -238,7 +280,7 @@ using namespace std;
     &stmt,      // prepared statement written here
     nullptr     // pointer to unused portion of sql (usually nullptr)
     );
-    sqlite3_bind_int(stmt,1,registration_id,-1,SQLITE_TRANSIENT)
+    sqlite3_bind_int(stmt,1,regid,-1,SQLITE_TRANSIENT)
     sqlite3_bind_text(stmt,2,name,-1,sqlite_transient);
     sqlite3_bind_text(stmt,3,course,-1,SQLITE_TRANSIENT);
     sqlite3_bind_int(stmt,4,sem_number,-1,SQLITE_TRANSIENT);
@@ -257,6 +299,8 @@ using namespace std;
         std::cin>>not_zone;
         std::cout<<"Enter the name of the zone:\n";
         std::cin>>zone_name;
+         Datastorage ds1;
+         ds1.registerZones();
         sqlite3_stmt* stmt;
         const char* sql = "INSERT INTO zone (zone_name,zone_num,nop_zone,density_zone,not_zone) VALUES (?, ?,?,?,?);";
         sqlite3_prepare_v2(
@@ -276,17 +320,20 @@ using namespace std;
         free sql;
         };
     }
-    class Tasks{
+    class TaskManager:public DepartmentModule{
     public:
         static int task_num,zi;
         static string task_dscrptn,status;
         int a,b;
-        void insert_tasks(){
+        void createTask(){
         std::cout<<"Enter task number:\n";
         std::cin>>task_num;
+        std::cout<<"Enter the zone number:\n";
+        std::cin>>zi;
         std::cout<<"Enter description of the task:\n";
         std::cin>>task_dscrptn;
-
+        Datastorage ds;
+        ds.registerTasks();
         sqlite3_stmt* stmt;
         const char* sql = "INSERT INTO tasks (task_num,task_dscrptn) VALUES (?, ?);";
         sqlite3_prepare_v2(
@@ -304,12 +351,14 @@ using namespace std;
         free sql;
         };
 
-       void assign_tasks(){
+       void assignTask(){
        std:cout<<"You have opted to assign task to a member\n"
        std::cout<<"Enter the registration id of member to whom task is to be assigned:\n";
        std::cin>>a;
        std::cout<<"Enter the task number:\n";
        std::cin>>b;
+       Datastorage ds;
+       ds.assignTasks();
        sqlite3_stmt* stmt;
        const char* sql = "INSERT INTO tasks (a,b) VALUES (?, ?);";
        sqlite3_prepare_v2(
@@ -327,14 +376,15 @@ using namespace std;
        };
 
          }
-    class scheduler{
+    class Scheduler:public DepartmentModule{
     public:
-      void schedule_work(){
+      void scheduleWork(){
        static string date,time
        static int nodl,lw;
        int k;
        static string status;
-       std::cout<<"Enter the task_num:\n";
+        Datastorage ds;
+        ds.ScheduleTasks();
        std::cin>>k;
        std::cout<<"Enter the due date:\n";
        std::cin>>date;
@@ -384,11 +434,11 @@ using namespace std;
        }
       };
  };
-    class Resources{
+    class ResourceTracker:Public DepartmentModule{
      private :
         int h,g;
     public:
-        void Inventory_mgmnt(){
+        void updateinventory(){
             static int tool_num,you,price,nt;
             static string tool_name;
             std::cout<<"Enter the tool number:\n";
@@ -402,6 +452,8 @@ using namespace std;
             std::cout<<"Enter the number of years the tool had been used:\n";
             std::cin>>you;
 
+       Datastorage ds;
+       ds.Inventory();
        sqlite3_stmt* stmt;
        char *sql="Insert into Inventory (tool_num,tool_name,price,you,nt) VALUES(?,?,?,?,?);";
        sqlite3_prepare_v2(
@@ -425,6 +477,8 @@ using namespace std;
       std::cin>>h;
       std::cout<<"Enter the task number:\n";
       std::cin>>g;
+       Datastorage ds;
+       ds. Tracker();
       sqlite3_stmt* stmt;
       char* sql="INSERT INTO TRACKER (h,g) VALUES(?,?);";
       sqlite3_prepare_v2(
@@ -441,6 +495,8 @@ using namespace std;
         };
 
       void Inventory_calculation(){
+      Datastorage ds;
+      ds.costTracker();
       sqlite3_stmt* stmt;
       sqlite3_stmt* stmt1;
       int a,b;
@@ -475,14 +531,48 @@ using namespace std;
        free sql1;
        };
     };
-    class Works{
-    void water_task(){
+    class ActivityTask:public TaskManager,public Scheduler{
+    public:
+       void execute(){
+           int a;
+       std::cout<<"Select from the following tasks :\n";
+       std::cout<<"1.WaterTask\n">>"2.GrassTrimTask\n">>"3.DeWeedTask\n">>"4.TreeShapeTask\n";
+       std::cin>>a
+       if(a==1)
+        {
+            WaterTask wt;
+            wt.execute();
+        }
+      else if(a==2)
+      {
+          GrassTrimTask gt;
+          gt.execute();
+      }
+      else if(a==3)
+      {
+       DeWeedTask dw;
+       dw.execute();
+      }
+      else if(a==4)
+      {
+          TreeShapeTask ts;
+          ts.execute();
+      }
+      else{
+        std::cout<<"NO such option available\n";
+      }
+
+       };
+
+    };
+
+    class WaterTask: public ActivityTask{
     sqlite3_stmt* stmt;
     sqlite3_stmt* stmt1;
-    int a,b,c,e,g,h;
+    public:
+    int b,c,e,g,h;
     srtring d;
-    std::cout<<"Enter the id of water task:\n";
-    std::cin>>a;
+    void execute(){
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
@@ -493,6 +583,8 @@ using namespace std;
     std::cin>>g;
     std::cout<<"Enter the registration ID:\n";
     std::cin>>h;
+     Datastorage ds;
+     ds.Watertask();
     char *sql="INSERT INTO Water_task (a,b,e,c,g,h,d) VALUES(?,?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DB,         // database handle
@@ -506,7 +598,7 @@ using namespace std;
                 c=sqlite3_column_int(stmt1,2);
             }
       };
-     sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
+     sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,4,c,-1,SQLITE_TRANSIENT);
@@ -518,11 +610,14 @@ using namespace std;
      sqlite3_finalize(stmt1);
      free sql1;
     };
+    };
 
-    void GrassTrim(){
+    class GrassTrimTask:public ActivityTask{
     sqlite3_stmt *stmt;
-    std::cout<<"Enter the id of grass trim task:\n";
-    std::cin>>a;
+    public:
+    int b,c,e,g,h;
+    srtring d;
+    void execute(){
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
@@ -533,6 +628,8 @@ using namespace std;
     std::cin>>g;
     std::cout<<"Enter the registration ID:\n";
     std::cin>>h;
+    Datastorage ds;
+    ds.Grasstrimtask();
     char *sql="INSERT INTO Grasstrim_task (a,b,e,g,h,d) VALUES(?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DB,         // database handle
@@ -541,7 +638,7 @@ using namespace std;
        &stmt,      // prepared statement written here
        nullptr );
 
-    sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,4,g,-1,sqlite_transient);
@@ -550,11 +647,12 @@ using namespace std;
      sqlite3_finalize(stmt);
      free sql;
     };
+    };
 
-    void Deweed_task(){
+    class DeWeedTask:public ActivityTask{
+    public:
     sqlite3_stmt *stmt;
-    std::cout<<"Enter the id of deweed task:\n";
-    std::cin>>a;
+    void execute(){
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
@@ -565,6 +663,8 @@ using namespace std;
     std::cin>>g;
     std::cout<<"Enter the registration ID:\n";
     std::cin>>h;
+     Datastorage ds;
+     ds.Deweedtask();
     char *sql="INSERT INTO Deweed_task (a,b,e,g,h,d) VALUES(?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DB,         // database handle
@@ -573,7 +673,7 @@ using namespace std;
        &stmt,      // prepared statement written here
        nullptr );
 
-     sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
+     sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,4,g,-1,sqlite_transient);
@@ -582,11 +682,11 @@ using namespace std;
      sqlite3_finalize(stmt);
      free sql;
     };
+    };
 
-    void Treeshape_task(){
+    class TreeShapeTask:public ActivityTask{
     sqlite3_stmt *stmt;
-    std::cout<<"Enter the id of tree shaping task:\n";
-    std::cin>>a;
+    void execute(){
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
@@ -597,6 +697,8 @@ using namespace std;
     std::cin>>g;
     std::cout<<"Enter the registration ID:\n";
     std::cin>>h;
+    Datastorage ds;
+    ds.Treeshapetask();
     char *sql="INSERT INTO Treeshape_task(a,b,e,g,h,d) VALUES(?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DB,         // database handle
@@ -605,7 +707,7 @@ using namespace std;
        &stmt,      // prepared statement written here
        nullptr );
 
-     sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
+     sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,4,g,-1,sqlite_transient);
@@ -613,6 +715,7 @@ using namespace std;
      sqlite3_bind_text(stmt,6,d,-1,sqlite_transient);
      sqlite3_finalize(stmt);
      free sql;
+    };
     };
 
 
@@ -622,6 +725,7 @@ using namespace std;
     };
 
 int main(){
+    std::
 
 }
 
