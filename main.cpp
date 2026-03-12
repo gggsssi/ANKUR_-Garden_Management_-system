@@ -2,6 +2,18 @@
 #include "sqlite3.h"
 using namespace std;
 
+   class DepartmentModule{
+   public:
+       static string name;
+       static int regid;
+   std::cout<<"Enter your name:\n"
+   std::cin>>a;
+   std:cout<<"Enter your registration id:\n"
+   std::cin>>b;
+   virtual void execute()=0;
+   };
+
+   class DATACENTER{
     sqlite3* DB;
     char *errMSG=nullptr;
     if (sqlite3_open("garden.db", &DB)) {
@@ -9,7 +21,9 @@ using namespace std;
     } else {
         std::cout << "Database opened successfully\n";
     }
-    void DataStorage(sqlite3* DB){
+    class DataStorage(sqlite3* DB){
+
+    void registerUsers(){
     const char* Users =
         "CREATE TABLE IF NOT EXISTS users ("
         "registration_id  INTEGER PRIMARY KEY ,"
@@ -17,7 +31,15 @@ using namespace std;
         "  course VARCHAR(20) NOT NULL,"
         "  sem_number  INT  NOT NULL "
         ");";
+    if(sqlite3_exec(DB,Users,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at creating users :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of users  succesful\n";}
+      {
+    };
 
+    void registerZones(){
     const char* Zones =
         "CREATE TABLE IF NOT EXISTS users ("
         "zone_num INTEGER PRIMARY KEY ,"
@@ -27,6 +49,15 @@ using namespace std;
         " not_zone  INT  NOT NULL "
         ");";
 
+    if(sqlite3_exec(DB,Zones,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at creating zones:"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of zones succesful\n";
+     }
+    };
+
+    void registerTasks(){
     const char* Tasks=
     " CREATE TABLE IF NOT EXISTS tasks("
     " task_num INT PRIMARY KEY ,"
@@ -34,14 +65,30 @@ using namespace std;
     " task_dscrptn VARCHAR(180) ,"
     "FOREIGN KEY (zoneNUM) REFERENCES Zones(zone_num)"
     ");";
+     if(sqlite3_exec(DB,Tasks,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at creating tasks:"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of taks  succesful\n";
+     }
+    };
 
+    void assignTasks(){
     const char* Assignd=
     " CREATE TABLE IF NOT EXISTS assignd("
     " regist_num INT PRIMARY KEY,"
     "task_num INT NOT NULL,"
     "FOREIGN KEY (regist_num) REFERENCES Users(registration_id),"
     "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+     if(sqlite3_exec(DB,Assignd,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at assiging tasks:"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of Assignd succesful\n";
+     }
+    };
 
+    void ScheduleTasks(){
     const char* Scheduler=
     "CREATE TABLE IF NOT EXISTS Scheduler("
     " task_num INT NOT NULL,"
@@ -50,7 +97,17 @@ using namespace std;
     "nodl INT ,"
     "lw DATE,"
     "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    if(sqlite3_exec(DB,Scheduler,0,nullptr,&errMSG)!=SQLITE_OK){
+         std::cout<<"error occurred at scheduling tasks:"<< errMSG<<"\n";
+        sqlite3_free(errMSG);
+     }
+    else{
+        std::cout<<"table creation of Scheduler succesful\n";
+    }
+    };
 
+
+    void Inventory(){
     const char* Inventory=
     "CREATE TABLE IF NOT EXISTS Inventory("
     "tool_num INT PRIMARY KEY ,"
@@ -58,12 +115,27 @@ using namespace std;
     "nt INT ,"
     "price INT CHECK(PRICE>0),"
     "YOU INT"";";
+     if(sqlite3_exec(DB,Inventory,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at creating inventory table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of inventory  succesful\n";}
+    };
 
+    void costTracker(){
     const char* Cost_TRACKER=
     "CREATE TABLE IF NOT EXISTS Cost_TRACKER("
     "tool_NUMBER INT PRIMARY KEY,"
     "TOTAL_COST INT NOT NULL"";";
 
+    if(sqlite3_exec(DB,Cost_TRACKER,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at cost tracker table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of cost tracker  succesful\n";}
+    };
+
+    void Watertask(){
     const char* Water_task=
     "CREATE TABLE IF NOT EXISTS Water_task("
     "Task_num INT PRIMARY KEY ,"
@@ -76,7 +148,14 @@ using namespace std;
     "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
     "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
     "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+      if(sqlite3_exec(DB,Water_task,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at water task table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of water task succesful\n";}
+    };
 
+     void Grasstrimtask(){
      const char* Grasstrim_task=
     "CREATE TABLE IF NOT EXISTS Grasstrim_task("
     "Task_num INT PRIMARY KEY ,"
@@ -88,7 +167,14 @@ using namespace std;
     "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
     "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
     "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+     if(sqlite3_exec(DB,Grasstrim_task,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at grasstrim task table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of grasstrim task succesful\n";}
+     };
 
+     void Deweedtask(){
      const char* Deweed_task=
     "CREATE TABLE IF NOT EXISTS Deweed_task("
     "Task_num INT PRIMARY KEY ,"
@@ -100,7 +186,14 @@ using namespace std;
     "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
     "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
     "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
+    if(sqlite3_exec(DB,Deweed_task,0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at deweed task table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of deweed task succesful\n";}
+     };
 
+     void Treeshapetask(){
      const char* Treeshape_task=
     "CREATE TABLE IF NOT EXISTS Treeshape_task("
     "Task_num INT PRIMARY KEY ,"
@@ -112,82 +205,12 @@ using namespace std;
     "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num),"
     "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id),"
     "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"";";
-
-
-
-    if(sqlite3_exec(DB,Users,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at creating users :"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of users  succesful\n";}
-
-    if(sqlite3_exec(DB,Zones,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at creating zones:"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of zones succesful\n";
-     }
-
-    if(sqlite3_exec(DB,Tasks,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at creating tasks:"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of taks  succesful\n";
-     }
-
-    if(sqlite3_exec(DB,Assignd,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at assiging tasks:"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of Assignd succesful\n";
-     }
-
-    if(sqlite3_exec(DB,Scheduler,0,nullptr,&errMSG)!=SQLITE_OK){
-         std::cout<<"error occurred at assiging tasks:"<< errMSG<<"\n";
-        sqlite3_free(errMSG);
-     }
-    else{
-        std::cout<<"table creation of Scheduler succesful\n";
-    }
-
-    if(sqlite3_exec(DB,Inventory,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at creating inventory table :"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of inventory  succesful\n";}
-
-    if(sqlite3_exec(DB,Cost_TRACKER,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at cost tracker table :"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of cost tracker  succesful\n";}
-
-
-    if(sqlite3_exec(DB,Water_task,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at water task table :"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of water task succesful\n";}
-
-     if(sqlite3_exec(DB,Grasstrim_task,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at grasstrim task table :"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of grasstrim task succesful\n";}
-
-      if(sqlite3_exec(DB,Deweed_task,0,nullptr,&errMSG)!=SQLITE_OK){
-        std::cout<<"error occurred at deweed task table :"<< errMSG<<"\n";
-        sqlite3_free(errMSG);}
-    else{
-        std::cout<<"table creation of deweed task succesful\n";}
-
-        if(sqlite3_exec(DB,Treeshape_task,0,nullptr,&errMSG)!=SQLITE_OK){
+    if(sqlite3_exec(DB,Treeshape_task,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at treeshape task table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of treeshape task succesful\n";}
-
-
+     };
     };
 
     class registration{
@@ -481,7 +504,7 @@ using namespace std;
       while(sqlite3_step(stmt1)==SQLITE_ROW){
             if(f==sqlite_column_int(stmt1,1)){
                 c=sqlite3_column_int(stmt1,2);
-            };
+            }
       };
      sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
@@ -517,7 +540,7 @@ using namespace std;
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-    }
+
     sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
@@ -549,7 +572,7 @@ using namespace std;
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-    }
+
      sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
@@ -581,7 +604,7 @@ using namespace std;
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-    }
+
      sqlite3_bind_int(stmt,1,a,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
@@ -596,5 +619,9 @@ using namespace std;
     sqlite3_close(DB);
     return 0;
 
+    };
+
+int main(){
 
 }
+
