@@ -3,15 +3,20 @@
 using namespace std;
 
    class DATACENTER{
-    sqlite3* DB;
+    static sqlite3* DB;
     char *errMSG=nullptr;
-    if (sqlite3_open("garden.db", &DB)) {
+public:
+    DATACENTER(){
+    if(sqlite3_open("garden.db", &DB)) {
         std::cout << "Error opening database\n";
-    } else {
-        std::cout << "Database opened successfully\n";
     }
+     else {
+        std::cout << "Database opened successfully\n";
+    }}
+   };
+
     class DataStorage{
-    sqlite3* DB
+
     void registerUsers(){
     const char* Users =
         "CREATE TABLE IF NOT EXISTS users ("
@@ -25,12 +30,11 @@ using namespace std;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of users  succesful\n";}
-      {
     };
 
     void registerZones(){
     const char* Zones =
-        "CREATE TABLE IF NOT EXISTS users ("
+        "CREATE TABLE IF NOT EXISTS Zones("
         "zone_num INTEGER PRIMARY KEY ,"
         "zone_name VARCHAR(30) NOT NULL,"
         " nop_zone INT NOT NULL,"
@@ -52,10 +56,10 @@ using namespace std;
     " task_num INT PRIMARY KEY ,"
     "zoneNUM INT ,"
     " task_dscrptn VARCHAR(180) ,"
-    "CONSTARINT fk_registertasks"
+    "CONSTRAINT fk_registertasks "
     "FOREIGN KEY (zoneNUM) REFERENCES Zones(zone_num)"
-    "ON DELETE CASCADE"
-    "ON UPDATE CASCADE"
+    " ON DELETE CASCADE"
+    " ON UPDATE CASCADE"
     ");";
      if(sqlite3_exec(DB,Tasks,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at creating tasks:"<< errMSG<<"\n";
@@ -71,10 +75,10 @@ using namespace std;
     " regist_num INT PRIMARY KEY,"
     "task_num INT NOT NULL,"
     "FOREIGN KEY (regist_num) REFERENCES Users(registration_id),"
-    "ON DELETE CASCADE"
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE"";";
      if(sqlite3_exec(DB,Assignd,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at assiging tasks:"<< errMSG<<"\n";
@@ -92,8 +96,8 @@ using namespace std;
     "time  TIME,"
     "nodl INT ,"
     "lw DATE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE"";";
     if(sqlite3_exec(DB,Scheduler,0,nullptr,&errMSG)!=SQLITE_OK){
          std::cout<<"error occurred at scheduling tasks:"<< errMSG<<"\n";
@@ -112,7 +116,7 @@ using namespace std;
     "tool_name VARCHAR(30) NOT NULL,"
     "nt INT ,"
     "price INT CHECK(PRICE>0),"
-    "YOU INT"";";
+    "YOU INT);";
      if(sqlite3_exec(DB,Inventory,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at creating inventory table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
@@ -121,11 +125,11 @@ using namespace std;
     };
 
     void Tracker(){
-    const char* Traacker=
+    const char* Tracker=
     "CREATE TABLE IF NOT EXISTS Inventory("
     "tool_num INT PRIMARY KEY ,"
     "registration_number INT NOT NULL"";";
-         if(sqlite3_exec(DB,Inventory,0,nullptr,&errMSG)!=SQLITE_OK){
+         if(sqlite3_exec(DB,Tracker,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at creating inventory tracker table :"<< errMSG<<"\n";
         sqlite3_free(errMSG);}
         else{
@@ -136,7 +140,7 @@ using namespace std;
     const char* Cost_TRACKER=
     "CREATE TABLE IF NOT EXISTS Cost_TRACKER("
     "tool_NUMBER INT PRIMARY KEY,"
-    "TOTAL_COST INT NOT NULL"";";
+    "TOTAL_COST INT NOT NULL);";
 
     if(sqlite3_exec(DB,Cost_TRACKER,0,nullptr,&errMSG)!=SQLITE_OK){
         std::cout<<"error occurred at cost tracker table :"<< errMSG<<"\n";
@@ -245,17 +249,85 @@ using namespace std;
     else{
         std::cout<<"table creation of treeshape task succesful\n";}
      };
+
+     void load(string tbnm){
+         sqlite3_stmt *stmt;
+         char *sql="Select * from " + std::to_string(tbnm) + ";"; "
+         sqlite3_prepare_v2(DB,sql,-1,&stmt,nullptr);
+         sqlite3_step(stmt);
+         sqlite3_finalize(stmt);
+         free sql;
+      };
+
+     void database(){
+      DataStorage ds;
+     ds.load(Users);
+     ds.load(Zones);
+     ds.load( Tasks);
+     ds.load( Assignd);
+     ds.load(Scheduler);
+     ds.load(Inventory);
+     ds.load(Tracker);
+     ds.load(Cost_TRACKER);
+     ds.load(Water_task);
+     ds.load( Grasstrimtask);
+     ds.load(Deweedtask);
+     ds.load(Treeshape_task);};
+    };
+
+
+    void reclog( string table_name ){
+     const std::string logs=
+     "CREATE TABLE IF NOT EXISTS LOGS("
+     "  log_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+     "table_name VARCHAR(20),"
+     "action VARCHAR(30),"
+      "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"";";
+      if(sqlite3_exec(DB,logs.c_str(),0,nullptr,&errMSG)!=SQLITE_OK){
+        std::cout<<"error occurred at creation of logs table :"<< errMSG<<"\n";
+        sqlite3_free(errMSG);}
+    else{
+        std::cout<<"table creation of logs succesful\n";}
+
+    const std::string logsin=
+    "CREATE TRIGGER log_" + table_name + "_insert"
+     "AFTER INSERT ON " + table_name + ""
+    "BEGIN"
+     "INSERT INTO logs(table_name, action)"
+      "VALUES('" + table_name + "', 'INSERT');"
+     "END"";"
+     sqlite3_exec(DB,logsin.c_str(),0,nullptr,&errMSG);
+
+    const std::string logsup=
+    "CREATE TRIGGER log_" + table_name + "_update"
+"AFTER UPDATE ON " + table_name + ""
+"BEGIN"
+    "INSERT INTO logs(table_name, action)"
+    "VALUES( '" + table_name + "', 'UPDATE');"
+"END;"";"
+     sqlite3_exec(DB,logsup.c_str(),0,nullptr,&errMSG);
+
+     const std::string logsdel=
+     "CREATE TRIGGER log_" + table_name + "_delete"
+"AFTER DELETE ON " + table_name + ""
+"BEGIN"
+    "INSERT INTO logs(table_name, action)"
+    "VALUES('" + table_name + "', 'DELETE');"
+"END;""
+     sqlite3_exec(DB,logsdel.c_str(),0,nullptr,&errMSG);
+    };
     };
 
     class DepartmentModule{
    public:
        static string name;
        static int regid;
+   virtual void execute(){
    std::cout<<"Enter your name:\n"
-   std::cin>>a;
+   std::cin>>name;
    std:cout<<"Enter your registration id:\n"
-   std::cin>>b;
-   virtual void execute();
+   std::cin>>regid;
+   };
    };
 
     class registration:public DepartmentModule{
@@ -269,7 +341,7 @@ using namespace std;
         std::cin>>course;
         std::cout<<"Enter the semester number:\n";
         std::cin>>sem_number;
-    Datastorage ds;
+    DataStorage ds;
     ds.registerUsers();
     sqlite3_stmt* stmt;
     const char* sql = "INSERT INTO users (name,course,sem_number,registration_id) VALUES (?, ?,?,?);";
@@ -280,8 +352,8 @@ using namespace std;
     &stmt,      // prepared statement written here
     nullptr     // pointer to unused portion of sql (usually nullptr)
     );
-    sqlite3_bind_int(stmt,1,regid,-1,SQLITE_TRANSIENT)
-    sqlite3_bind_text(stmt,2,name,-1,sqlite_transient);
+    sqlite3_bind_int(stmt,1,regid,-1,SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt,2,name,-1,SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt,3,course,-1,SQLITE_TRANSIENT);
     sqlite3_bind_int(stmt,4,sem_number,-1,SQLITE_TRANSIENT);
     sqlite3_step(stmt);
@@ -299,10 +371,10 @@ using namespace std;
         std::cin>>not_zone;
         std::cout<<"Enter the name of the zone:\n";
         std::cin>>zone_name;
-         Datastorage ds1;
+         DataStorage ds1;
          ds1.registerZones();
         sqlite3_stmt* stmt;
-        const char* sql = "INSERT INTO zone (zone_name,zone_num,nop_zone,density_zone,not_zone) VALUES (?, ?,?,?,?);";
+        const char* sql = "INSERT INTO Zones (zone_name,zone_num,nop_zone,density_zone,not_zone) VALUES (?, ?,?,?,?);";
         sqlite3_prepare_v2(
         DB,         // database handle
         sql,        // SQL with ? placeholders
@@ -310,7 +382,7 @@ using namespace std;
         &stmt,      // prepared statement written here
         nullptr     // pointer to unused portion of sql (usually nullptr)
         );
-         sqlite3_bind_int(stmt,1,zone_num,-1,SQLITE_TRANSIENT)
+         sqlite3_bind_int(stmt,1,zone_num,-1,SQLITE_TRANSIENT);
          sqlite3_bind_text(stmt,2,zone_name,-1,sqlite_transient);
          sqlite3_bind_int(stmt,3,nop_zone,-1,SQLITE_TRANSIENT);
          sqlite3_bind_int(stmt,4,density_zone,-1,SQLITE_TRANSIENT);
@@ -319,17 +391,25 @@ using namespace std;
          sqlite3_finalize(stmt);
         free sql;
         };
-    }
+     void usersshow(){
+     DataStorage ds;
+     ds.load(Zones);};
+
+     void zonesshow(){
+          DataStorage ds;
+     ds.load(Zones);
+     };
+    };
     class TaskManager:public DepartmentModule{
     public:
-        static int task_num,zi;
+        static int task_num,zone_num;
         static string task_dscrptn,status;
         int a,b;
         void createTask(){
         std::cout<<"Enter task number:\n";
         std::cin>>task_num;
         std::cout<<"Enter the zone number:\n";
-        std::cin>>zi;
+        std::cin>>zone_num;
         std::cout<<"Enter description of the task:\n";
         std::cin>>task_dscrptn;
         Datastorage ds;
@@ -343,7 +423,7 @@ using namespace std;
         &stmt,      // prepared statement written here
         nullptr     // pointer to unused portion of sql (usually nullptr)
         );
-        sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT)
+        sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt,2,zone_num,-1,sqlite_transient);
         sqlite3_bind_text(stmt,3,task_dscrptn,-1,SQLITE_TRANSIENT);
         sqlite3_step(stmt);
@@ -352,12 +432,12 @@ using namespace std;
         };
 
        void assignTask(){
-       std:cout<<"You have opted to assign task to a member\n"
+       std::cout<<"You have opted to assign task to a member\n"
        std::cout<<"Enter the registration id of member to whom task is to be assigned:\n";
        std::cin>>a;
        std::cout<<"Enter the task number:\n";
        std::cin>>b;
-       Datastorage ds;
+       DataStorage ds;
        ds.assignTasks();
        sqlite3_stmt* stmt;
        const char* sql = "INSERT INTO tasks (a,b) VALUES (?, ?);";
@@ -374,12 +454,16 @@ using namespace std;
        free sql;
 
        };
+     void tasklistshow(){
+     DataStorage ds;
+     ds.load(Zones);
+         };
+    };
 
-         }
     class Scheduler:public DepartmentModule{
     public:
       void scheduleWork(){
-       static string date,time
+       static string date,time;
        static int nodl,lw;
        int k;
        static string status;
@@ -405,8 +489,8 @@ using namespace std;
        &stmt,      // prepared statement written here
        nullptr );
        sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
-       sqlite3_bind_int(stmt,2,date,-1,sqlite_transient);
-       sqlite3_bind_int(stmt,3,time,-1,SQLITE_TRANSIENT);
+       sqlite3_bind_text(stmt,2,date,-1,sqlite_transient);
+       sqlite3_bind_text(stmt,3,time,-1,SQLITE_TRANSIENT);
        sqlite3_bind_int(stmt,4,nodl,-1,sqlite_transient);
        sqlite3_bind_int(stmt,5,lw,-1,SQLITE_TRANSIENT);
        sqlite3_bind_text(stmt,6,status,-1,SQLITE_TRANSIENT);
@@ -419,8 +503,7 @@ using namespace std;
       std::cout<<"Enter task number:\n";
       std::cin>>a;
       sqlite3_stmt* stmt;
-      const char* sql = "select task_num ,status from Scheduler where task_num="
-      +std::to_string(a)+";";
+      const std::string sql = "select task_num ,status from Scheduler where task_num=" + std::to_string(a) + ";";
 
       sqlite3_prepare_v2(
        DB,         // database handle
@@ -433,11 +516,15 @@ using namespace std;
         std::cout<<"STATUS:"<<sqlite3_column_text(stmt,1);
        }
       };
+     void showworkSchedule(){
+     DataStorage ds;
+     ds.load(Scheduler);
+     };
  };
-    class ResourceTracker:Public DepartmentModule{
+    class ResourceTracker:public DepartmentModule{
      private :
         int h,g;
-    public:
+     public:
         void updateinventory(){
             static int tool_num,you,price,nt;
             static string tool_name;
@@ -452,7 +539,7 @@ using namespace std;
             std::cout<<"Enter the number of years the tool had been used:\n";
             std::cin>>you;
 
-       Datastorage ds;
+       DataStorage ds;
        ds.Inventory();
        sqlite3_stmt* stmt;
        char *sql="Insert into Inventory (tool_num,tool_name,price,you,nt) VALUES(?,?,?,?,?);";
@@ -462,8 +549,8 @@ using namespace std;
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-       qlite3_bind_int(stmt,1,tool_num,-1,SQLITE_TRANSIENT);
-       sqlite3_bind_text(stmt,2,tool_name,-1,sqlite_transient);
+       sqlite3_bind_int(stmt,1,tool_num,-1,SQLITE_TRANSIENT);
+       sqlite3_bind_text(stmt,2,tool_name,-1,SQLITE_TRANSIENT);
        sqlite3_bind_int(stmt,3,price,-1,SQLITE_TRANSIENT);
        sqlite3_bind_int(stmt,4,you,-1,sqlite_transient);
        sqlite3_bind_int(stmt,5,nt,-1,SQLITE_TRANSIENT);
@@ -530,11 +617,30 @@ using namespace std;
        sqlite3_finalize(stmt1);
        free sql1;
        };
+     void Inventoryshow(){
+     Datastorage ds;
+     ds.load(Zones);
+     };
     };
     class ActivityTask:public TaskManager,public Scheduler{
     public:
        void execute(){
-           int a;
+        int a,
+       public:
+       int b,c;
+       std::cout<<"Enter the task num:\n";
+       std::cin>>b;
+       sqlite3_stmt *stmt;
+       c="Select zone_num from tasks where task_num = (?);";
+       sqlite3_bind_int(stmt,1,b,-1,SQLITE_TRANSIENT);
+       sqlite3_prepare_v2(
+       DB,         // database handle
+       sql,        // SQL with ? placeholders
+       -1,         // length of sql (-1 = auto-detect)
+       &stmt,      // prepared statement written here
+       nullptr );
+       sqlite3_finalize(stmt);
+       free sql;
        std::cout<<"Select from the following tasks :\n";
        std::cout<<"1.WaterTask\n">>"2.GrassTrimTask\n">>"3.DeWeedTask\n">>"4.TreeShapeTask\n";
        std::cin>>a
@@ -605,6 +711,7 @@ using namespace std;
      sqlite3_bind_int(stmt,5,g,-1,sqlite_transient);
      sqlite3_bind_int(stmt,6,h,-1,SQLITE_TRANSIENT);
      sqlite3_bind_text(stmt,7,d,-1,sqlite_transient);
+     std::cout<<"The task "<<task_num<<"aassigned at zone "<<ActivityTask::c<<"has been completed\n";
      sqlite3_finalize(stmt);
      free sql;
      sqlite3_finalize(stmt1);
@@ -638,12 +745,13 @@ using namespace std;
        &stmt,      // prepared statement written here
        nullptr );
 
-    sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
+     sqlite3_bind_int(stmt,1,task_num,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,2,b,-1,sqlite_transient);
      sqlite3_bind_int(stmt,3,e,-1,SQLITE_TRANSIENT);
      sqlite3_bind_int(stmt,4,g,-1,sqlite_transient);
      sqlite3_bind_int(stmt,5,h,-1,SQLITE_TRANSIENT);
      sqlite3_bind_text(stmt,6,d,-1,sqlite_transient);
+     std::cout<<"The task "<<task_num<<"aassigned at zone "<<ActivityTask::c<<"has been completed\n";
      sqlite3_finalize(stmt);
      free sql;
     };
@@ -679,6 +787,7 @@ using namespace std;
      sqlite3_bind_int(stmt,4,g,-1,sqlite_transient);
      sqlite3_bind_int(stmt,5,h,-1,SQLITE_TRANSIENT);
      sqlite3_bind_text(stmt,6,d,-1,sqlite_transient);
+     std::cout<<"The task "<<task_num<<"aassigned at zone "<<ActivityTask::c<<"has been completed\n";
      sqlite3_finalize(stmt);
      free sql;
     };
@@ -713,6 +822,7 @@ using namespace std;
      sqlite3_bind_int(stmt,4,g,-1,sqlite_transient);
      sqlite3_bind_int(stmt,5,h,-1,SQLITE_TRANSIENT);
      sqlite3_bind_text(stmt,6,d,-1,sqlite_transient);
+     std::cout<<"The task "<<task_num<<"aassigned at zone "<<ActivityTask::c<<"has been completed\n";
      sqlite3_finalize(stmt);
      free sql;
     };
@@ -725,7 +835,7 @@ using namespace std;
     };
 
 int main(){
-    std::
+
 
 }
 
