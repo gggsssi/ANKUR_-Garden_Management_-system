@@ -175,14 +175,14 @@ class TreeShapeTask;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE"";";
     char *errMSG=nullptr;
     if(sqlite3_exec(DATACENTER::DB,Water_task,0,nullptr,&errMSG)!=SQLITE_OK){
@@ -201,14 +201,14 @@ class TreeShapeTask;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE"";";
     char *errMSG=nullptr;
     if(sqlite3_exec(DATACENTER::DB,Grasstrim_task,0,nullptr,&errMSG)!=SQLITE_OK){
@@ -227,14 +227,14 @@ class TreeShapeTask;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE"";";
     char *errMSG=nullptr;
     if(sqlite3_exec(DATACENTER::DB,Deweed_task,0,nullptr,&errMSG)!=SQLITE_OK){
@@ -253,14 +253,14 @@ class TreeShapeTask;
     "TOOL_NUMBER INT,"
     "WORKER_ID INT,"
     "STATUS VARCHAR(10),"
-    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (TOOL_NUMBER) REFERENCES Inventory(tool_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (WORKER_ID) REFERENCES Users(registration_id) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE,"
-    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num)"
-    "ON DELETE CASCADE"
+    "FOREIGN KEY (task_num) REFERENCES Tasks(task_num) "
+    "ON DELETE CASCADE "
     "ON UPDATE CASCADE"";";
     char *errMSG=nullptr;
     if(sqlite3_exec(DATACENTER::DB,Treeshape_task,0,nullptr,&errMSG)!=SQLITE_OK){
@@ -459,7 +459,7 @@ class TreeShapeTask;
         DataStorage ds;
         ds.registerTasks();
         sqlite3_stmt* stmt;
-        const char* sql = "INSERT INTO tasks (task_num,zone_num,task_dscrptn) VALUES (?, ?);";
+        const char* sql = "INSERT INTO tasks (task_num,zone_num,task_dscrptn) VALUES (?,?,?);";
         sqlite3_prepare_v2(
         DATACENTER::DB,         // database handle
         sql,        // SQL with ? placeholders
@@ -505,11 +505,11 @@ class TreeShapeTask;
     public:
        void execute(){
         std::cout<<"YOU HAVE ENETERED SCHEDULER\n";};
-      void scheduleWork(){
        static string date,time;
        static int nodl,lw;
-       int k;
        static string status;
+      void scheduleWork(){
+       int k;
         DataStorage ds;
         ds.ScheduleTasks();
        std::cin>>k;
@@ -569,9 +569,9 @@ class TreeShapeTask;
      public:
           void execute(){
         std::cout<<"YOU HAVE ENETERED ResourceTracker\n";};
-        void updateinventory(){
-            static int tool_num,you,price,nt;
+         static int tool_num,you,price,nt;
             static string tool_name;
+        void updateinventory(){
             std::cout<<"Enter the tool number:\n";
             std::cin>>tool_num;
             std::cout<<"Enter the tool name:\n";
@@ -610,7 +610,7 @@ class TreeShapeTask;
        DataStorage ds;
        ds. tbuser();
       sqlite3_stmt* stmt;
-      char* sql="INSERT INTO tbuser (tool_num,task_num) VALUES(?,?);";
+      const char* sql="INSERT INTO tbuser (tool_num,task_num) VALUES(?,?);";
       sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql,        // SQL with ? placeholders
@@ -629,14 +629,14 @@ class TreeShapeTask;
       sqlite3_stmt* stmt;
       sqlite3_stmt* stmt1;
       int a,b;
-      char *sql="Select tool_num,tool_name,nt,price,nt*price AS TOTAL_COST FROM Inventory;";
+      const char *sql="Select tool_num,tool_name,nt,price,nt*price AS TOTAL_COST FROM Inventory;";
       sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql,        // SQL with ? placeholders
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-       char* sql1="INSERT INTO Cost_TRACKER (tool_NUMBER, TOTAL_COST) VALUES(?,?);";
+       const char* sql1="INSERT INTO Cost_TRACKER (tool_NUMBER, TOTAL_COST) VALUES(?,?);";
        sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql1,        // SQL with ? placeholders
@@ -664,16 +664,18 @@ class TreeShapeTask;
      ds.load("Inventory");
      };
     };
-    class ActivityTask:public TaskManager,public Scheduler{
+
+     class ActivityTask:public TaskManager,public Scheduler{
     public:
         int zone_id;
         int actn;
+        virtual ~ActivityTask() {}
         void execute(){
         int a;
        std::cout<<"Enter the task num:\n";
        std::cin>>actn;
        sqlite3_stmt *stmt;
-       char *c="Select zone_num from tasks where task_num = (?);";
+       const char *c="Select zone_num from tasks where task_num = (?);";
        sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        c,        // SQL with ? placeholders
@@ -681,31 +683,35 @@ class TreeShapeTask;
        &stmt,      // prepared statement written here
        nullptr );
        sqlite3_bind_int(stmt,1,actn);
-       zone_id=sqlite3_column_int(stmt,1);
        sqlite3_step(stmt);
+       zone_id=sqlite3_column_int(stmt,0);
        sqlite3_finalize(stmt);
        std::cout<<"Select from the following tasks :\n";
        std::cout<<"1.WaterTask\n"<<"2.GrassTrimTask\n"<<"3.DeWeedTask\n"<<"4.TreeShapeTask\n";
        std::cin>>a;
        if(a==1)
         {
-            WaterTask wt;
-            wt.execute();
+           WaterTask* wt = new WaterTask();
+           wt->execute();
+           delete wt;
         }
       else if(a==2)
       {
-          GrassTrimTask gt;
-          gt.execute();
+        GrassTrimTask* gt = new GrassTrimTask();
+        gt->execute();
+        delete gt;
       }
       else if(a==3)
       {
-       DeWeedTask dw;
-       dw.execute();
+        DeWeedTask* dw = new DeWeedTask();
+        dw->execute();
+        delete dw;
       }
       else if(a==4)
       {
-          TreeShapeTask ts;
-          ts.execute();
+           TreeShapeTask* ts = new TreeShapeTask();
+           ts->execute();
+           delete ts;
       }
       else{
         std::cout<<"NO such option available\n";
@@ -721,6 +727,7 @@ class TreeShapeTask;
     public:
     int b,c,e,g,f,h;
     string d;
+    virtual ~WaterTask() {}
     void execute(){
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
@@ -735,14 +742,14 @@ class TreeShapeTask;
      f = zone_id;
      DataStorage ds;
      ds.Watertask();
-    char *sql="INSERT INTO Water_task (Task_num,time_done,DATE,WATER_USAGE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?,?);";
+    const char *sql="INSERT INTO Water_task (Task_num,time_done,DATE,WATER_USAGE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql,        // SQL with ? placeholders
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-     char *sql1="SELECT zone_num,(nop_zone*0.5+not_zone*10)*(1+density_zone*0.2) AS WATER_USAGE FROM Zones;";
+     const char *sql1="SELECT zone_num,(nop_zone*0.5+not_zone*10)*(1+density_zone*0.2) AS WATER_USAGE FROM Zones;";
      sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql1,        // SQL with ? placeholders
@@ -772,6 +779,7 @@ class TreeShapeTask;
     public:
     int b,c,e,g,h;
     string d;
+    virtual ~GrassTrimTask() {}
     void execute(){
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
@@ -785,7 +793,7 @@ class TreeShapeTask;
     std::cin>>h;
     DataStorage ds;
     ds.Grasstrimtask();
-    char *sql="INSERT INTO Grasstrim_task (Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
+    const char *sql="INSERT INTO Grasstrim_task (Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql,        // SQL with ? placeholders
@@ -807,6 +815,7 @@ class TreeShapeTask;
     class DeWeedTask:public ActivityTask{
     public:
     sqlite3_stmt *stmt;
+    virtual ~DeWeedTask() {}
     void execute(){
     int b,e,g,h;
     string d;
@@ -822,7 +831,7 @@ class TreeShapeTask;
     std::cin>>h;
      DataStorage ds;
      ds.Deweedtask();
-    char *sql="INSERT INTO Deweed_task (Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
+    const char *sql="INSERT INTO Deweed_task (Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql,        // SQL with ? placeholders
@@ -844,6 +853,7 @@ class TreeShapeTask;
     class TreeShapeTask:public ActivityTask{
     sqlite3_stmt *stmt;
     public:
+    virtual ~TreeShapeTask() {}
     void execute(){
     int b,e,g,h;
     string d;
@@ -859,7 +869,7 @@ class TreeShapeTask;
     std::cin>>h;
     DataStorage ds;
     ds.Treeshapetask();
-    char *sql="INSERT INTO Treeshape_task(Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
+    const char *sql="INSERT INTO Treeshape_task(Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
     sqlite3_prepare_v2(
        DATACENTER::DB,         // database handle
        sql,        // SQL with ? placeholders
@@ -877,6 +887,7 @@ class TreeShapeTask;
      sqlite3_finalize(stmt);
     };
     };
+
 sqlite3* DATACENTER::DB = nullptr;
 string DepartmentModule::name;
 int DepartmentModule::regid = 0;
@@ -890,10 +901,22 @@ string registration::zone_name;
 int TaskManager::task_num = 0;
 int TaskManager::zone_num = 0;
 string TaskManager::task_dscrptn;
-string TaskManager::status;
+string Scheduler::date;
+string Scheduler::time;
+int Scheduler::nodl=0;
+int Scheduler::lw=0;
+string Scheduler::status;
+int ResourceTracker::tool_num=0;
+int ResourceTracker::you=0;
+int ResourceTracker::price=0;
+int ResourceTracker::nt=0;
+string ResourceTracker::tool_name;
 
 int main(){
     DATACENTER dc;
+    registration rr;
+    rr.execute();
+
     sqlite3_close(DATACENTER::DB);
     return 0;
 
