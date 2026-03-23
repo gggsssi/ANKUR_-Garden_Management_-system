@@ -1,10 +1,6 @@
 #include <iostream>
 #include "sqlite3.h"
 using std::string;
-class WaterTask;
-class GrassTrimTask;
-class DeWeedTask;
-class TreeShapeTask;
    class DATACENTER{
     public:
     static sqlite3* DB;
@@ -16,6 +12,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);
     }
      else {
+        sqlite3_exec(DB, "PRAGMA foreign_keys = ON;", 0, 0, 0);
         std::cout << "Database opened successfully\n";
     }}
    };
@@ -36,7 +33,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of users  succesful\n";}
-    };
+    }
 
     void registerZones(){
     const char* Zones =
@@ -55,7 +52,7 @@ class TreeShapeTask;
     else{
         std::cout<<"table creation of zones succesful\n";
      }
-    };
+    }
 
     void registerTasks(){
     const char* Tasks=
@@ -75,7 +72,7 @@ class TreeShapeTask;
     else{
         std::cout<<"table creation of taks  succesful\n";
      }
-    };
+    }
 
     void assignTasks(){
     const char* Assignd=
@@ -96,7 +93,7 @@ class TreeShapeTask;
     else{
         std::cout<<"table creation of Assignd succesful\n";
      }
-    };
+    }
 
     void ScheduleTasks(){
     const char* Scheduler=
@@ -119,7 +116,7 @@ class TreeShapeTask;
     else{
         std::cout<<"table creation of Scheduler succesful\n";
     }
-    };
+    }
 
 
     void toolbox(){
@@ -136,7 +133,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of inventory  succesful\n";}
-    };
+    }
 
     void tbuser(){
     const char* Tracker=
@@ -150,7 +147,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
         else{
           std::cout<<"table creation of inventory tracker  succesful\n";}
-    };
+    }
 
     void costTracker(){
     const char* Cost_TRACKER=
@@ -163,7 +160,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of cost tracker  succesful\n";}
-    };
+    }
 
     void Watertask(){
     const char* Water_task=
@@ -190,7 +187,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of water task succesful\n";}
-    };
+    }
 
      void Grasstrimtask(){
      const char* Grasstrim_task=
@@ -216,7 +213,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of grasstrim task succesful\n";}
-     };
+     }
 
      void Deweedtask(){
      const char* Deweed_task=
@@ -242,7 +239,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of deweed task succesful\n";}
-     };
+     }
 
      void Treeshapetask(){
      const char* Treeshape_task=
@@ -268,7 +265,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of treeshape task succesful\n";}
-     };
+     }
 
      void load(string tbnm){
          sqlite3_stmt *stmt;
@@ -285,9 +282,9 @@ class TreeShapeTask;
 
         std::cout << colname << ": " << val << "  ";
         }
-    };
+    }
     sqlite3_finalize(stmt);
-      };
+      }
 
      void database(){
       DataStorage ds;
@@ -302,7 +299,7 @@ class TreeShapeTask;
      ds.load("Water_task");
      ds.load( "Grasstrimtask");
      ds.load("Deweedtask");
-     ds.load("Treeshape_task");};
+     ds.load("Treeshape_task");}
 
     void reclog( string table_name ){
      const std::string logs=
@@ -357,7 +354,7 @@ class TreeShapeTask;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of logs succesful\n";}
-    };
+    }
     };
 
     class DepartmentModule{
@@ -374,11 +371,11 @@ class TreeShapeTask;
         static int zone_num,nop_zone,density_zone,not_zone;
         static string zone_name;
         void execute(){
-   std::cout<<"Enter your name:\n";
-   std::cin>>name;
-   std::cout<<"Enter your registration id:\n";
-   std::cin>>regid;
-   };
+        std::cout<<"Enter your name:\n";
+        std::getline(std::cin,name);
+        std::cout<<"Enter your registration id:\n";
+        std::cin>>regid;
+   }
         void registerUser(){
         std::cout<<"Enter your course:\n";
         std::cin>>course;
@@ -387,7 +384,7 @@ class TreeShapeTask;
     DataStorage ds;
     ds.registerUsers();
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO users (name,course,sem_number,registration_id) VALUES (?, ?,?,?);";
+    const char* sql = "INSERT INTO users (registration_id,name,course,sem_number) VALUES (?, ?,?,?);";
     sqlite3_prepare_v2(
     DATACENTER::DB,         // database handle
     sql,        // SQL with ? placeholders
@@ -401,7 +398,7 @@ class TreeShapeTask;
     sqlite3_bind_int(stmt,4,sem_number);
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
-    };
+    }
     void Zone_process(){   //in future add option to see zones before adding new zone
         std::cout<<"Enter the zone number:\n";
         std::cin>>zone_num;
@@ -412,7 +409,8 @@ class TreeShapeTask;
         std::cout<<"Enter the no of trees of the zone:\n";
         std::cin>>not_zone;
         std::cout<<"Enter the name of the zone:\n";
-        std::cin>>zone_name;
+        std::cin.ignore();
+        std::getline(std::cin, zone_name);
          DataStorage ds1;
          ds1.registerZones();
         sqlite3_stmt* stmt;
@@ -431,15 +429,15 @@ class TreeShapeTask;
          sqlite3_bind_int(stmt,5,not_zone);
          sqlite3_step(stmt);
          sqlite3_finalize(stmt);
-        };
+        }
      void usersshow(){
      DataStorage ds;
-     ds.load("Users");};
+     ds.load("Users");}
 
      void zonesshow(){
           DataStorage ds;
      ds.load("Zones");
-     };
+     }
     };
     class TaskManager:public DepartmentModule{
     public:
@@ -447,7 +445,7 @@ class TreeShapeTask;
         static string task_dscrptn;
         int a,b;
         void execute(){
-        std::cout<<"YOU HAVE ENETERED TASK MANAGER\n";};
+        std::cout<<"YOU HAVE ENETERED TASK MANAGER\n";}
 
         void createTask(){
         std::cout<<"Enter task number:\n";
@@ -455,7 +453,8 @@ class TreeShapeTask;
         std::cout<<"Enter the zone number:\n";
         std::cin>>zone_num;
         std::cout<<"Enter description of the task:\n";
-        std::cin>>task_dscrptn;
+         std::cin.ignore();
+        std::getline(std::cin,task_dscrptn);
         DataStorage ds;
         ds.registerTasks();
         sqlite3_stmt* stmt;
@@ -472,7 +471,7 @@ class TreeShapeTask;
         sqlite3_bind_text(stmt,3,task_dscrptn.c_str(),-1,SQLITE_TRANSIENT);
         sqlite3_step(stmt);
         sqlite3_finalize(stmt);
-        };
+        }
 
        void assignTask(){
        std::cout<<"You have opted to assign task to a member\n";
@@ -494,17 +493,17 @@ class TreeShapeTask;
        sqlite3_bind_int(stmt,2,a);
        sqlite3_step(stmt);
        sqlite3_finalize(stmt);
-       };
+       }
      void tasklistshow(){
      DataStorage ds;
      ds.load("Zones");
-         };
+         }
     };
 
     class Scheduler:public DepartmentModule{
     public:
        void execute(){
-        std::cout<<"YOU HAVE ENETERED SCHEDULER\n";};
+        std::cout<<"YOU HAVE ENETERED SCHEDULER\n";}
        static string date,time;
        static int nodl,lw;
        static string status;
@@ -512,6 +511,7 @@ class TreeShapeTask;
        int k;
         DataStorage ds;
         ds.ScheduleTasks();
+       std::cout<<"Enter the task number:\n";
        std::cin>>k;
        std::cout<<"Enter the due date:\n";
        std::cin>>date;
@@ -522,7 +522,8 @@ class TreeShapeTask;
        std::cout<<"enter the last date worked on(0 if not yet started):\n";
        std::cin>>lw;
        std::cout<<"Enter the status of the task:\n";
-       std::cin>>status;
+        std::cin.ignore();
+        std::getline(std::cin,status);
        sqlite3_stmt* stmt;
        const char* sql = "INSERT INTO Scheduler (task_num,due_date,time,nodl,lw,status) VALUES (?, ?,?,?,?,?);";
        sqlite3_prepare_v2(
@@ -531,7 +532,7 @@ class TreeShapeTask;
        -1,         // length of sql (-1 = auto-detect)
        &stmt,      // prepared statement written here
        nullptr );
-       sqlite3_bind_int(stmt,1,TaskManager::task_num);
+       sqlite3_bind_int(stmt,1,k);
        sqlite3_bind_text(stmt,2,date.c_str(),-1,SQLITE_TRANSIENT);
        sqlite3_bind_text(stmt,3,time.c_str(),-1,SQLITE_TRANSIENT);
        sqlite3_bind_int(stmt,4,nodl);
@@ -539,7 +540,7 @@ class TreeShapeTask;
        sqlite3_bind_text(stmt,6,status.c_str(),-1,SQLITE_TRANSIENT);
        sqlite3_step(stmt);
        sqlite3_finalize(stmt);
-    };
+    }
     void check_status(){
       int a;
       std::cout<<"Enter task number:\n";
@@ -557,25 +558,26 @@ class TreeShapeTask;
         std::cout<<"TASK NUM:"<<sqlite3_column_int(stmt, 0);
         std::cout<<"STATUS:"<<sqlite3_column_text(stmt,1);
        }
-      };
+      }
      void showworkSchedule(){
      DataStorage ds;
      ds.load("Scheduler");
-     };
+     }
  };
     class ResourceTracker:public DepartmentModule{
      private :
         int h,g;
      public:
           void execute(){
-        std::cout<<"YOU HAVE ENETERED ResourceTracker\n";};
+        std::cout<<"YOU HAVE ENETERED ResourceTracker\n";}
          static int tool_num,you,price,nt;
             static string tool_name;
         void updateinventory(){
             std::cout<<"Enter the tool number:\n";
             std::cin>>tool_num;
             std::cout<<"Enter the tool name:\n";
-            std::cin>>tool_name;
+             std::cin.ignore();
+            std::getline(std::cin,tool_name)
             std::cout<<"Enter the number of tools:\n";
             std::cin>>nt;
             std::cout<<"Enter the price of tool(in rs) at time of buying:\n";
@@ -600,7 +602,7 @@ class TreeShapeTask;
        sqlite3_bind_int(stmt,5,nt);
        sqlite3_step(stmt);
        sqlite3_finalize(stmt);
-        };
+        }
 
      void Inventory_tracker(){
       std::cout<<"Enter the tool number being used:\n";
@@ -621,7 +623,7 @@ class TreeShapeTask;
        sqlite3_bind_int(stmt,2,g);
        sqlite3_step(stmt);
        sqlite3_finalize(stmt);
-        };
+        }
 
       void Inventory_calculation(){
       DataStorage ds;
@@ -655,23 +657,23 @@ class TreeShapeTask;
         sqlite3_bind_int(stmt1,2,b);
         sqlite3_step(stmt1);
         sqlite3_reset(stmt1);
-       };
+       }
        sqlite3_finalize(stmt);
        sqlite3_finalize(stmt1);
-       };
+       }
      void Inventoryshow(){
      DataStorage ds;
      ds.load("Inventory");
-     };
+     }
     };
 
      class ActivityTask:public TaskManager,public Scheduler{
     public:
         int zone_id;
         int actn;
+        int a;
         virtual ~ActivityTask() {}
         void execute(){
-        int a;
        std::cout<<"Enter the task num:\n";
        std::cin>>actn;
        sqlite3_stmt *stmt;
@@ -689,36 +691,7 @@ class TreeShapeTask;
        std::cout<<"Select from the following tasks :\n";
        std::cout<<"1.WaterTask\n"<<"2.GrassTrimTask\n"<<"3.DeWeedTask\n"<<"4.TreeShapeTask\n";
        std::cin>>a;
-       if(a==1)
-        {
-           WaterTask* wt = new WaterTask();
-           wt->execute();
-           delete wt;
-        }
-      else if(a==2)
-      {
-        GrassTrimTask* gt = new GrassTrimTask();
-        gt->execute();
-        delete gt;
       }
-      else if(a==3)
-      {
-        DeWeedTask* dw = new DeWeedTask();
-        dw->execute();
-        delete dw;
-      }
-      else if(a==4)
-      {
-           TreeShapeTask* ts = new TreeShapeTask();
-           ts->execute();
-           delete ts;
-      }
-      else{
-        std::cout<<"NO such option available\n";
-      }
-
-       };
-
     };
 
     class WaterTask: public ActivityTask{
@@ -732,7 +705,8 @@ class TreeShapeTask;
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
-    std::cin>>d;
+     std::cin.ignore();
+     std::getline(std::cin,d);
     std::cout<<"Enter the date of task being done:\n";
     std::cin>>e;
     std::cout<<"Enter the tool number:\n";
@@ -771,7 +745,7 @@ class TreeShapeTask;
      std::cout<<"The task "<<actn<<"aassigned at zone "<<ActivityTask::zone_id<<"has been completed\n";
      sqlite3_finalize(stmt);
      sqlite3_finalize(stmt1);
-    };
+    }
     };
 
     class GrassTrimTask:public ActivityTask{
@@ -784,7 +758,8 @@ class TreeShapeTask;
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
-    std::cin>>d;
+    std::cin.ignore();
+     std::getline(std::cin,d);
     std::cout<<"Enter the date of task being done:\n";
     std::cin>>e;
     std::cout<<"Enter the tool number:\n";
@@ -809,7 +784,7 @@ class TreeShapeTask;
      sqlite3_bind_text(stmt,6,d.c_str(),-1,SQLITE_TRANSIENT);
      std::cout<<"The task "<<actn<<"aassigned at zone "<<ActivityTask::zone_id<<"has been completed\n";
      sqlite3_finalize(stmt);
-    };
+    }
     };
 
     class DeWeedTask:public ActivityTask{
@@ -822,7 +797,8 @@ class TreeShapeTask;
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
-    std::cin>>d;
+    std::cin.ignore();
+     std::getline(std::cin,d);
     std::cout<<"Enter the date of task being done:\n";
     std::cin>>e;
     std::cout<<"Enter the tool number:\n";
@@ -847,7 +823,7 @@ class TreeShapeTask;
      sqlite3_bind_text(stmt,6,d.c_str(),-1,SQLITE_TRANSIENT);
      std::cout<<"The task "<<actn<<"aassigned at zone "<<ActivityTask::zone_id<<"has been completed\n";
      sqlite3_finalize(stmt);
-    };
+    }
     };
 
     class TreeShapeTask:public ActivityTask{
@@ -860,7 +836,8 @@ class TreeShapeTask;
     std::cout<<"Enter time of task being done(starting):\n";
     std::cin>>b;
     std::cout<<"Enter the status\n";
-    std::cin>>d;
+    std::cin.ignore();
+     std::getline(std::cin,d);
     std::cout<<"Enter the date of task being done:\n";
     std::cin>>e;
     std::cout<<"Enter the tool number:\n";
@@ -885,7 +862,7 @@ class TreeShapeTask;
      sqlite3_bind_text(stmt,6,d.c_str(),-1,SQLITE_TRANSIENT);
      std::cout<<"The task "<<actn<<"aassigned at zone "<<ActivityTask::zone_id<<"has been completed\n";
      sqlite3_finalize(stmt);
-    };
+    }
     };
 
 sqlite3* DATACENTER::DB = nullptr;
@@ -917,8 +894,95 @@ int main(){
     registration rr;
     rr.execute();
 
-    sqlite3_close(DATACENTER::DB);
-    return 0;
+    int choice=-1;
+    if(choice != 0){
+        std::cout << "\n=== ANKUR SYSTEM ===\n";
+        std::cout << "1. Register user\n";
+        std::cout << "2. Create zone\n";
+        std::cout << "3. Create task\n";
+        std::cout << "4. Assign task\n";
+        std::cout << "5. Schedule task\n";
+        std::cout << "6. Inventory update\n";
+        std::cout << "7. Execute activity task\n";
+        std::cout << "8. Show tables\n";
+        std::cout << "0. Exit\n";
+        std::cout << "Enter the Choice: ";
+        std::cin >> choice;
+        if(choice == 1){
+            registration r;
+            r.execute();
+            r.registerUser();
+        }
+        else if(choice == 2){
+            registration r;
+            r.Zone_process();
+        }
+        else if(choice == 3){
+            TaskManager t;
+            t.execute();
+            t.createTask();
+        }
+        else if(choice == 4){
+            TaskManager t;
+            t.assignTask();
+        }
+        else if(choice == 5){
+            Scheduler s;
+            s.execute();
+            s.scheduleWork();
+        }
+        else if(choice == 6){
+            ResourceTracker rt;
+            rt.execute();
+            rt.updateinventory();
+        }
+        else if(choice == 7){
+            ActivityTask at;
+       if(at.a==1)
+        {
+           WaterTask wt;
+           wt.execute();
+        }
+      else if(at.a==2)
+      {
+        GrassTrimTask gt;
+        gt.execute();
+      }
+      else if(at.a==3)
+      {
+        DeWeedTask dw;
+        dw.execute();
+      }
+      else if(at.a==4)
+      {
+           TreeShapeTask ts;
+           ts.execute();
+      }
+      else{
+        std::cout<<"NO such option available\n";
+      }
+        }
+      else if(choice == 8){
+    DataStorage ds;
+    int opt;
+    std::cout<<"1. Show all tables\n";
+    std::cout<<"2. Show specific table\n";
+    std::cin>>opt;
+
+    if(opt == 1){
+        ds.database();
+    }
+    else if(opt == 2){
+        std::string tname;
+        std::cout<<"Enter table name:\n";
+        std::cin>>tname;
+        ds.load(tname);
+    }
+    else{
+        std::cout<<"Invalid option\n";
+    }
+   }
+
 
 }
-
+}
