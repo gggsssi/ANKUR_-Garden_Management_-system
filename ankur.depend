@@ -64,3 +64,10 @@
 	<sys/uio.h>
 	<math.h>
 
+1774253935 source:c:\users\dmacs-24040112016\documents\gardendb\ankur\main.cpp
+	<iostream>
+	"sqlite3.h"
+
+1772445555 c:\users\dmacs-24040112016\documents\gardendb\ankur\sqlite3.h
+	<stdarg.h>
+
