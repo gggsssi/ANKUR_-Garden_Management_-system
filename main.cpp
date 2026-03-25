@@ -1,5 +1,6 @@
 #include <iostream>
 #include "sqlite3.h"
+#include<loading.c>
 using std::string;
    class DATACENTER{
     public:
@@ -354,8 +355,8 @@ using std::string;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of logs succesful\n";}
-    }
     };
+    }
 
     class DepartmentModule{
    public:
