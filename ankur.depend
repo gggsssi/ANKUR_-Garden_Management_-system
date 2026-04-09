@@ -64,10 +64,34 @@
 	<sys/uio.h>
 	<math.h>
 
-1774253935 source:c:\users\dmacs-24040112016\documents\gardendb\ankur\main.cpp
+1775723094 source:c:\users\dmacs-24040112016\documents\gardendb\ankur\main.cpp
 	<iostream>
+	<stdexcept>
 	"sqlite3.h"
+	<fstream>
+	"loading.cpp"
+	"namalt.cpp"
 
 1772445555 c:\users\dmacs-24040112016\documents\gardendb\ankur\sqlite3.h
 	<stdarg.h>
+
+1775473720 c:\users\dmacs-24040112016\documents\gardendb\ankur\loading.c
+	"sqlite3.h"
+	<stdexcept>
+	<string>
+
+1775473524 c:\users\dmacs-24040112016\documents\gardendb\ankur\namalt.c
+	"sqlite3.h"
+	<string>
+	<stdexcept>
+
+1775473720 c:\users\dmacs-24040112016\documents\gardendb\ankur\loading.cpp
+	"sqlite3.h"
+	<stdexcept>
+	<string>
+
+1775472181 c:\users\dmacs-24040112016\documents\gardendb\ankur\namalt.cpp
+	"sqlite3.h"
+	<string>
+	<stdexcept>
 

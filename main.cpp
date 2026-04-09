@@ -1,6 +1,9 @@
 #include <iostream>
+#include <stdexcept>
 #include "sqlite3.h"
+#include<fstream>
 using std::string;
+
    class DATACENTER{
     public:
     static sqlite3* DB;
@@ -8,6 +11,7 @@ using std::string;
     public:
     DATACENTER(){
     if(sqlite3_open("garden.db", &DB)) {
+        throw string("!!THERE WAS A PROBLEM SETTING UP DATABASE!!\n");
         std::cout << "Error opening database\n";
         sqlite3_free(errMSG);
     }
@@ -268,6 +272,10 @@ using std::string;
      }
 
      void load(string tbnm){
+         if(tbnm.empty())
+            {
+                throw std::invalid_argument("load(): table name cannot be empty");
+            }
          sqlite3_stmt *stmt;
          string sql="Select * from " + tbnm + ";";
          sqlite3_prepare_v2(DATACENTER::DB,sql.c_str(),-1,&stmt,nullptr);
@@ -282,6 +290,7 @@ using std::string;
 
         std::cout << colname << ": " << val << "  ";
         }
+        std::cout<<"\n";
     }
     sqlite3_finalize(stmt);
       }
@@ -354,7 +363,7 @@ using std::string;
         sqlite3_free(errMSG);}
     else{
         std::cout<<"table creation of logs succesful\n";}
-    }
+    };
     };
 
     class DepartmentModule{
@@ -370,19 +379,51 @@ using std::string;
         static int sem_number;
         static int zone_num,nop_zone,density_zone,not_zone;
         static string zone_name;
+        string local_name;
+        string local_course;
+        int local_regid;
+        int local_sem;
+        registration() {
+          local_name   = "";
+          local_course = "";
+          local_regid  = 0;
+          local_sem    = 0;
+        }
+        registration(const registration& other) {
+            this->local_name   = other.local_name;
+            this->local_course = other.local_course;
+            this->local_regid  = other.local_regid;
+            this->local_sem    = other.local_sem;
+            std::cout << "[Backup Created] name=" << this->local_name
+                      << " | course=" << this->local_course
+                      << " | regid=" << this->local_regid
+                      << " | sem=" << this->local_sem << "\n";
+            }
+
         void execute(){
         std::cout<<"Enter your name:\n";
-        std::getline(std::cin,name);
+        std::getline(std::cin,name,'\n');
+        local_name = name;
         std::cout<<"Enter your registration id:\n";
         std::cin>>regid;
+        local_regid = regid;
    }
         void registerUser(){
         std::cout<<"Enter your course:\n";
         std::cin>>course;
+        local_course = course;
         std::cout<<"Enter the semester number:\n";
         std::cin>>sem_number;
+        local_sem = sem_number;
+        if(name.empty())
+            throw std::invalid_argument("registerUser(): name cannot be empty");
+        if(course.empty())
+            throw std::invalid_argument("registerUser(): course cannot be empty");
+         if(sem_number < 1 || sem_number > 8)
+            throw std::out_of_range("registerUser(): semester must be between 1 and 8, got: " + std::to_string(sem_number));
     DataStorage ds;
     ds.registerUsers();
+    registration backup = *this;
     sqlite3_stmt* stmt;
     const char* sql = "INSERT INTO users (registration_id,name,course,sem_number) VALUES (?, ?,?,?);";
     sqlite3_prepare_v2(
@@ -396,7 +437,14 @@ using std::string;
     sqlite3_bind_text(stmt,2,name.c_str(),-1,SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt,3,course.c_str(),-1,SQLITE_TRANSIENT);
     sqlite3_bind_int(stmt,4,sem_number);
-    sqlite3_step(stmt);
+    if(sqlite3_step(stmt) != SQLITE_DONE){
+          sqlite3_reset(stmt);
+          sqlite3_bind_int(stmt,1,local_regid);
+          sqlite3_bind_text(stmt,2,local_name.c_str(),-1,SQLITE_TRANSIENT);
+          sqlite3_bind_text(stmt,3,local_course.c_str(),-1,SQLITE_TRANSIENT);
+          sqlite3_bind_int(stmt,4,local_sem);
+          sqlite3_step(stmt);
+        }
     sqlite3_finalize(stmt);
     }
     void Zone_process(){   //in future add option to see zones before adding new zone
@@ -411,6 +459,10 @@ using std::string;
         std::cout<<"Enter the name of the zone:\n";
         std::cin.ignore();
         std::getline(std::cin, zone_name);
+        if(nop_zone < 0)
+            throw std::out_of_range("Zone_process(): number of plants cannot be negative");
+        if(not_zone < 0)
+            throw std::out_of_range("Zone_process(): number of trees cannot be negative");
          DataStorage ds1;
          ds1.registerZones();
         sqlite3_stmt* stmt;
@@ -455,6 +507,10 @@ using std::string;
         std::cout<<"Enter description of the task:\n";
          std::cin.ignore();
         std::getline(std::cin,task_dscrptn);
+         if(task_num <= 0)
+            throw std::out_of_range("createTask(): task_num must be positive, got: " + std::to_string(task_num));
+        if(zone_num <= 0)
+            throw std::out_of_range("createTask(): zone_num must be positive, got: " + std::to_string(zone_num));
         DataStorage ds;
         ds.registerTasks();
         sqlite3_stmt* stmt;
@@ -479,6 +535,10 @@ using std::string;
        std::cin>>a;
        std::cout<<"Enter the task number:\n";
        std::cin>>b;
+       if(a <= 0)
+            throw std::out_of_range("assignTask(): registration_id must be positive, got: " + std::to_string(a));
+       if(b <= 0)
+            throw std::out_of_range("assignTask(): task_num must be positive, got: " + std::to_string(b));
        DataStorage ds;
        ds.assignTasks();
        sqlite3_stmt* stmt;
@@ -513,8 +573,12 @@ using std::string;
         ds.ScheduleTasks();
        std::cout<<"Enter the task number:\n";
        std::cin>>k;
+         if(k <= 0)
+            throw std::out_of_range("scheduleWork(): task_num must be positive, got: " + std::to_string(k));
        std::cout<<"Enter the due date:\n";
        std::cin>>date;
+       if(date.empty())
+         throw std::invalid_argument("scheduleWork(): due date cannot be empty");
        std::cout<<"Enter number of days left(enter 0):\n";
        std::cin>>nodl;
        std::cout<<"Enter the time you wish to do work in next session:\n";
@@ -577,14 +641,17 @@ using std::string;
             std::cin>>tool_num;
             std::cout<<"Enter the tool name:\n";
              std::cin.ignore();
-            std::getline(std::cin,tool_name)
+            std::getline(std::cin,tool_name);
             std::cout<<"Enter the number of tools:\n";
             std::cin>>nt;
             std::cout<<"Enter the price of tool(in rs) at time of buying:\n";
             std::cin>>price;
             std::cout<<"Enter the number of years the tool had been used:\n";
             std::cin>>you;
-
+             if(price <= 0)
+                throw std::out_of_range("updateinventory(): price must be positive, got: " + std::to_string(price));
+            if(nt <= 0)
+                throw std::out_of_range("updateinventory(): number of tools must be positive, got: " + std::to_string(nt));
        DataStorage ds;
        ds.toolbox();
        sqlite3_stmt* stmt;
@@ -678,12 +745,8 @@ using std::string;
        std::cin>>actn;
        sqlite3_stmt *stmt;
        const char *c="Select zone_num from tasks where task_num = (?);";
-       sqlite3_prepare_v2(
-       DATACENTER::DB,         // database handle
-       c,        // SQL with ? placeholders
-       -1,         // length of sql (-1 = auto-detect)
-       &stmt,      // prepared statement written here
-       nullptr );
+       if(sqlite3_prepare_v2(DATACENTER::DB,c,-1,&stmt,nullptr) != SQLITE_OK)
+           throw std::runtime_error("ActivityTask: DB prepare failed: " + string(sqlite3_errmsg(DATACENTER::DB)));
        sqlite3_bind_int(stmt,1,actn);
        sqlite3_step(stmt);
        zone_id=sqlite3_column_int(stmt,0);
@@ -691,6 +754,8 @@ using std::string;
        std::cout<<"Select from the following tasks :\n";
        std::cout<<"1.WaterTask\n"<<"2.GrassTrimTask\n"<<"3.DeWeedTask\n"<<"4.TreeShapeTask\n";
        std::cin>>a;
+       if(a < 1 || a > 4)
+          throw std::invalid_argument("ActivityTask: invalid task type, choose 1-4, got: " + std::to_string(a));
       }
     };
 
@@ -769,12 +834,8 @@ using std::string;
     DataStorage ds;
     ds.Grasstrimtask();
     const char *sql="INSERT INTO Grasstrim_task (Task_num,time_done,DATE,TOOL_NUMBER,WORKER_ID,STATUS) VALUES(?,?,?,?,?,?);";
-    sqlite3_prepare_v2(
-       DATACENTER::DB,         // database handle
-       sql,        // SQL with ? placeholders
-       -1,         // length of sql (-1 = auto-detect)
-       &stmt,      // prepared statement written here
-       nullptr );
+     if(sqlite3_prepare_v2(DATACENTER::DB,sql,-1,&stmt,nullptr) != SQLITE_OK)
+        throw std::runtime_error("GrassTrimTask: DB prepare failed: " + string(sqlite3_errmsg(DATACENTER::DB)));
 
      sqlite3_bind_int(stmt,1,task_num);
      sqlite3_bind_int(stmt,2,b);
@@ -866,6 +927,8 @@ using std::string;
     };
 
 sqlite3* DATACENTER::DB = nullptr;
+#include "loading.cpp"
+#include "namalt.cpp"
 string DepartmentModule::name;
 int DepartmentModule::regid = 0;
 string registration::course;
@@ -895,8 +958,15 @@ int main(){
     rr.execute();
 
     int choice=-1;
+    try{
     if(choice != 0){
-        std::cout << "\n=== ANKUR SYSTEM ===\n";
+        std::cout << "\n=== ANKUR SYSTEM ===\n\n\n";
+        std::cout<<"[[[[[THESE ARE TABLE NAMES , USE THESE ONLY TO AVOID CASE-SENSITIVITY RELATED  ISSUES}}}}}\n";
+        std::cout << "Available Tables (Case-Sensitive): \n";
+        std::cout << "Users, Zones, Tasks, Assignd, Scheduler, Inventory, \n";
+        std::cout << "Tracker, Cost_TRACKER, Water_task, Grasstrim_task, \n";
+        std::cout << "Deweed_task, Treeshape_task, logs\n\n";
+        std::cout<<"IT IS SUGGESTED STRONGLY THAT YOU SEE THE TABLES ONCE BEFORE MAKING ANY CHANGES , AS SCHEMA MAY HAVE CHANGED\n\n";
         std::cout << "1. Register user\n";
         std::cout << "2. Create zone\n";
         std::cout << "3. Create task\n";
@@ -905,9 +975,14 @@ int main(){
         std::cout << "6. Inventory update\n";
         std::cout << "7. Execute activity task\n";
         std::cout << "8. Show tables\n";
+        std::cout<<"9.Write comments\n";
+        std::cout<<"10.Show user comments\n";
+        std::cout<<"11.ALTER TABLES\n";
+        std::cout<<"12.SIGNIFICANT CALCULATIONS \n";
         std::cout << "0. Exit\n";
         std::cout << "Enter the Choice: ";
         std::cin >> choice;
+        std::cin.ignore();
         if(choice == 1){
             registration r;
             r.execute();
@@ -940,23 +1015,31 @@ int main(){
             ActivityTask at;
        if(at.a==1)
         {
-           WaterTask wt;
-           wt.execute();
+           WaterTask* wt = new WaterTask();
+           wt->execute();
+           delete wt;
+           wt = nullptr;
         }
       else if(at.a==2)
       {
-        GrassTrimTask gt;
-        gt.execute();
+         GrassTrimTask* gt = new GrassTrimTask();
+        gt->execute();
+        delete gt;
+        gt = nullptr;
       }
       else if(at.a==3)
       {
-        DeWeedTask dw;
-        dw.execute();
+        DeWeedTask* dw = new DeWeedTask();
+        dw->execute();
+        delete dw;
+        dw = nullptr;
       }
       else if(at.a==4)
       {
-           TreeShapeTask ts;
-           ts.execute();
+           TreeShapeTask* ts = new TreeShapeTask();
+           ts->execute();
+           delete ts;
+           ts = nullptr;
       }
       else{
         std::cout<<"NO such option available\n";
@@ -982,7 +1065,196 @@ int main(){
         std::cout<<"Invalid option\n";
     }
    }
+   else if(choice==9){
+    std::ofstream f("comments.txt",std::ios::app);
+    string name,comment;
+    int regnn;
+    std::cout<<"Enter name: \n";
+    std::cin>>name;
+    f << name <<",";
+    std::cout<<"Enter regn no: \n";
+    std::cin>>regnn;
+    f<< regnn<<",";
+    std::cout<<"Enter your comment: \n";
+    std::cin>>comment;
+    f<< comment << "\n";
+    f.close();
+   }
+   else if(choice==10){
+    std::ifstream f("comments.txt");
+    string fulline;
+     while(getline(f, fulline)) {
+    std::cout << fulline << "\n";
+   }
+    f.close();
+  }
+ else if(choice==11){
+    int alopt;
+    std::cout<<"---CAUTION----THIS WILL DO CHANGES THAT WILL ALTER SCHEMA DESIGN POTENTIALLY---CAUTION---\n";
+    std::cout<<"The following are the options:\n";
+    std::cout<<"1.DELETE ROW\n";
+    std::cout<<"2.DROP COLUMN\n";
+    std::cout<<"3.DROP TABLE\n";
+    std::cout<<"4.UPDATE TABLE\n";
+    std::cout<<"5.RENAME COLUMN\n";
+    std::cout<<"6.RENAME TABLE NAME\n";
+    std::cout<<"ENTER YOUR DESIRED OPTION:";
+    std::cin>>alopt;
 
-
+    if(alopt==1){
+        string tbname, parameter;
+        int rowval;
+        std::cout<<"Enter table name: ";
+        std::cin>>tbname;
+        std::cout<<"Enter column (parameter) to match: ";
+        std::cin>>parameter;
+        std::cout<<"Enter the row value to delete: ";
+        std::cin>>rowval;
+        try{
+            ALTER::del_row(tbname, parameter, rowval);
+            std::cout<<"Row deleted successfully.\n";
+        } catch(std::exception& e){
+            std::cout<<"Error: "<<e.what()<<"\n";
+        }
+    }
+    else if(alopt==2){
+        string tbname, colname;
+        std::cout<<"Enter table name: ";
+        std::cin>>tbname;
+        std::cout<<"Enter column name to drop: ";
+        std::cin>>colname;
+        try{
+            ALTER::drop_col(tbname, colname);
+            std::cout<<"Column dropped successfully.\n";
+        } catch(std::exception& e){
+            std::cout<<"Error: "<<e.what()<<"\n";
+        }
+    }
+    else if(alopt==3){
+        string tbname;
+        std::cout<<"Enter table name to drop: ";
+        std::cin>>tbname;
+        try{
+            ALTER::drop_table(tbname);
+            std::cout<<"Table dropped successfully.\n";
+        } catch(std::exception& e){
+            std::cout<<"Error: "<<e.what()<<"\n";
+        }
+    }
+    else if(alopt==4){
+        string tbname, parameter;
+        int newval;
+        std::cout<<"Enter table name: ";
+        std::cin>>tbname;
+        std::cout<<"Enter column to update: ";
+        std::cin>>parameter;
+        std::cout<<"Enter new value: ";
+        std::cin>>newval;
+        try{
+            ALTER::ADDITION obj;
+            obj.update(tbname, parameter, newval);
+            std::cout<<"Table updated successfully.\n";
+        } catch(std::exception& e){
+            std::cout<<"Error: "<<e.what()<<"\n";
+        }
+    }
+    else if(alopt==5){
+        string tbname, oldcol, newcol;
+        std::cout<<"Enter table name: ";
+        std::cin>>tbname;
+        std::cout<<"Enter current column name: ";
+        std::cin>>oldcol;
+        std::cout<<"Enter new column name: ";
+        std::cin>>newcol;
+        try{
+            ALTER::ADDITION obj;
+            obj.rename_clnnm(tbname, oldcol, newcol);
+            std::cout<<"Column renamed successfully.\n";
+        } catch(std::exception& e){
+            std::cout<<"Error: "<<e.what()<<"\n";
+        }
+    }
+    else if(alopt==6){
+        string tbname, newtbname;
+        std::cout<<"Enter current table name: ";
+        std::cin>>tbname;
+        std::cout<<"Enter new table name: ";
+        std::cin>>newtbname;
+        try{
+            ALTER::ADDITION obj;
+            obj.rename_tbn(tbname, newtbname);
+            std::cout<<"Table renamed successfully.\n";
+        } catch(std::exception& e){
+            std::cout<<"Error: "<<e.what()<<"\n";
+        }
+    }
+    else{
+        std::cout<<"Invalid option.\n";
+    }
 }
+    else if(choice==12){
+    int calopt;
+    std::cout<<"Enter what item's total usage you want to calculate:\n";
+    std::cout<<"1.TOOLS\n";
+    std::cout<<"2.WATER\n";
+    std::cin>>calopt;
+
+    if(calopt == 1){
+        // Calls Calculation_Usage<int>("Tools") — sums all TOTAL_COST from Cost_TRACKER
+        try{
+            int result = Calculation_Usage<int>("Tools");
+            std::cout<<"Total Tools Cost Usage: "<<result<<"\n";
+        } catch(std::exception& e){
+            std::cerr<<"[Calc Error] "<<e.what()<<"\n";
+        }
+    }
+    else if(calopt == 2){
+        // Two sub-options: total water usage OR usage for a specific task+date
+        int wateropt;
+        std::cout<<"1. Total WATER usage (all tasks)\n";
+        std::cout<<"2. WATER usage for a specific task and date\n";
+        std::cin>>wateropt;
+
+        if(wateropt == 1){
+            // Calls Calculation_Usage<int>("Water") — sums all WATER_USAGE from Water_task
+            try{
+                int result = Calculation_Usage<int>("Water");
+                std::cout<<"Total Water Usage: "<<result<<"\n";
+            } catch(std::exception& e){
+                std::cerr<<"[Calc Error] "<<e.what()<<"\n";
+            }
+        }
+        else if(wateropt == 2){
+            // Calls Calculation_Usage<int>(task_id, date) — fetches WATER_USAGE for one row
+            int task_id, date;
+            std::cout<<"Enter Task ID: ";
+            std::cin>>task_id;
+            std::cout<<"Enter Date (integer): ";
+            std::cin>>date;
+            try{
+                int result = Calculation_Usage<int>(task_id, date);
+                std::cout<<"Water Usage for Task "<<task_id<<" on Date "<<date<<": "<<result<<"\n";
+            } catch(std::exception& e){
+                std::cerr<<"[Calc Error] "<<e.what()<<"\n";
+            }
+        }
+        else{
+            std::cout<<"Invalid water option.\n";
+        }
+    }
+    else{
+        std::cout<<"Invalid option.\n";
+    }
+}
+
+  }
+   } catch (const std::invalid_argument& e) {
+            std::cerr << "\n[Input Error]  " << e.what() << "\n";
+        } catch (const std::out_of_range& e) {
+            std::cerr << "\n[Range Error]  " << e.what() << "\n";
+        } catch (const std::runtime_error& e) {
+            std::cerr << "\n[DB Error]     " << e.what() << "\n";
+        } catch (const std::exception& e) {
+            std::cerr << "\n[Unknown Error] " << e.what() << "\n";
+        }
 }
